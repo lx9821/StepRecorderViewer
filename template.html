@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recording Session Details</title>
+    <style>
+        .toggle-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .toggle-switch {
+            width: 60px;
+            height: 30px;
+            border-radius: 30px;
+            appearance: none;
+            background-color: #ccc;
+            position: relative;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            border: 2px solid #888;
+        }
+        
+        .toggle-switch::before {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 4px;
+            width: 22px;
+            height: 22px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        
+        .toggle-switch:checked {
+            background-color: #333;
+        }
+        
+        .toggle-switch:checked::before {
+            transform: translateX(30px);
+        }
+        
+        .sun {
+            font-size: 20px;
+            position: absolute;
+            left: -30px;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+        
+        .moon {
+            font-size: 20px;
+            position: absolute;
+            left: -30px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: white;
+            color: #333;
+            padding: 45px 30px;
+            position: relative;
+        }
+        header img {
+            position: absolute;
+            top: 15px;
+            left: 50px;
+            height: 100px;
+        }
+        header h1 {
+            text-align: center;
+            flex-grow: 1;
+            font-size: 24px;
+            margin: 0;
+        }
+        .container {
+            padding: 20px;
+            background-color: white;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 1200px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .general-info, .steps {
+            margin-bottom: 40px;
+        }
+        .general-info h2, .steps h2 {
+            color: #333;
+        }
+        .step {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+        }
+        .step:last-child {
+            border-bottom: none;
+        }
+        .step img {
+            max-width: 100%;
+            border-radius: 5px;
+            border: solid 1px;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .info-table th, .info-table td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .info-table th {
+            background-color: #f2f2f2;
+        }
+        .info-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        .info-table td {
+            word-wrap: break-word;
+        }
+        .view-video-btn, .print-btn {
+            border: none;
+            font-size: medium;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .video-container {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .video-container img {
+            max-width: 100%;
+            height: auto;
+        }
+        .go-to-top-btn {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            z-index: 999;
+        }
+        button {
+            display: none;
+        }
+        input, textarea {
+            resize: none;
+            border: 1px solid gray;
+            background: #d3d3d340;
+            color: darkslategray;
+            font: inherit;
+            display: inline;
+            padding: 0;
+            margin: 0;
+            border-radius: 10px;
+            padding-left: 5px;
+            width: 100%;
+        }
+        input[type="text"] {
+            width: 50% !important;
+            border-radius: 10px;
+            padding-left: 5px;
+        }
+        input::placeholder, textarea::placeholder {
+            color: inherit;
+        }
+        body.dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+        header.dark-mode {
+            background-color: #333;
+            color: #ffffff;
+        }
+        .container.dark-mode {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+        .go-to-top-btn.dark-mode {
+            background-color: #ffcc00;
+        }
+        .dark-mode-switch {
+            display: block;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #444;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            z-index: 9999;
+        }
+        h2.dark-mode {
+            color: #ffffff;
+        }
+        input.dark-mode, textarea.dark-mode {
+            background-color: #333;
+            color: #ffffff;
+            border: 1px solid #444;
+        }
+        input.dark-mode::placeholder, textarea.dark-mode::placeholder {
+            color: #bbb;
+        }        
+        .info-table.dark-mode th {
+            background-color: #444;
+            color: #ffffff;
+        }
+        .info-table.dark-mode td {
+            background-color: #333;
+            color: #ffffff;
+        }
+        .info-table.dark-mode tr:hover {
+            background-color: #222;
+        }
+        @page {
+            margin-top: 30px;
+        }
+        @media print {
+            h1{
+                margin-bottom: -50px !important;
+                font-size: 20px;
+            }
+            h2{
+                font-size: 16px;
+            }
+            h3{
+                font-size: 12px;
+            }
+            h4{
+                font-size: 11px;
+            }
+            .ui-elements{
+                font-size: 12px;
+            }
+            .container{
+                margin-top: -25px;
+            }
+            body, header, .container, .info-table, input, textarea, h2, .go-to-top-btn {
+                background-color: #f4f4f4 !important;
+                color: #333 !important;
+                box-shadow: none;
+            }
+            .info-table{
+                width: 100%;
+                font-size: small;
+            }
+            .file-table{
+                font-size: smaller;
+            }
+            input, textarea {
+                background-color: #fff !important;
+                color: #333 !important;
+                border: none !important;
+            }
+            .info-table th{
+                color: #333 !important;
+                background-color: #f2f2f2 !important;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+                width: 30%;
+                word-wrap: break-word;
+            }            
+            .info-table td {
+                background-color: #f9f9f9 !important;
+                color: #121212 !important;
+                font-size: 12px;
+            }
+            .view-video-btn, .print-btn, .go-to-top-btn {
+                background-color: #4CAF50 !important;
+                color: white !important;
+            }
+            .container {
+                box-shadow: 0;
+            }
+            .heading-general {
+                padding-top: -50px;
+            }
+            .step {
+                page-break-before: always;
+                page-break-inside: avoid;
+            }
+            .step-image{
+                height: 50%;
+            }
+            input, textarea {
+                border: none;
+                border-radius: 0px !important;
+                padding-left: 0px !important;
+                background: none;
+                color: #333 !important;
+                font: inherit;
+                display: inline;
+                padding: 0;
+                margin: 0;
+                width: 100%  !important;
+            }
+            .view-video-btn, .video-container, .print-btn {
+                display: none;
+            }
+            .go-to-top-btn #go-to-top-btn{
+                display: none;
+            }
+            .no-print {
+                display: none;
+            }
+            .dark-mode-switch {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Recording Session Details</h1>
+        <div class="toggle-container no-print">
+            <span class="icon sun" id="sun-icon">☀️</span>
+            <input type="checkbox" id="dark-mode-switch" class="toggle-switch">
+            <span class="icon moon" id="moon-icon">🌙</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="general-info">
+            <table class="info-table" id="general-info-table">
+                <!-- General info will be inserted here -->
+            </table>
+            <div class="no-print" id="notification" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #28a745; color: white; padding: 10px 20px; border-radius: 5px; font-size: 16px; z-index: 1000; text-align: center;">
+                <strong>Selected Detail Level: </strong><span id="notification-text">Medium</span>
+            </div>
+            <div class="no-print" style="margin-bottom: 10px;">
+                <label for="program-option" style="font-weight: normal; font-size: medium;">Select Detail Level:</label>
+                <select id="program-option" style="padding: 5px; font-size: medium; margin-left: 10px; border-radius: 10px;">
+                    <option value="basic">Basic</option>
+                    <option value="medium" selected>Medium (recommended)</option>
+                    <option value="full">Full</option>
+                </select>
+                <span id="info-icon" style="cursor: pointer; margin-left: 10px; border: 2px solid #888; border-radius: 50%; font-size: 18px; color: white; background: gray; display: inline-block; text-align: center; width: 24px; height: 24px; line-height: 24px; font-weight: bold;">
+                    i
+                </span>
+                <div id="tooltip" style="visibility: hidden; position: fixed; background-color: #333; color: white; padding: 10px; border-radius: 5px; font-size: 14px; white-space: pre-line; z-index: 10; pointer-events: none; max-width: 250px;">
+                    <strong>Basic:</strong> This option shows a brief overview of the details, including timestamp, image, and description of the step. <br><br>
+                    <strong>Medium:</strong> This option provides additional details, including information about the program. <br><br>
+                    <strong>Full:</strong> This option will show all available details, such as cursor position with coordinates, program information (e.g., PIDs), UI elements and more.
+                </div>
+            </div>
+            <a href="#" class="view-video-btn" id="view-video-btn">View Video</a>
+            <button class="print-btn" id="print-btn">Print</button>
+        <div class="video-container" id="video-container">
+            <video style="width:100%" controls autoplay>
+                <source id="mp4" src="assets/Recorded_Steps.mp4" type="video/mp4">
+            </video>
+        </div>
+        <!-- Steps -->
+        <div class="steps" id="steps-container">
+            <!-- Steps will be inserted here -->
+        </div>
+    </div>
+    <button class= "go-to-top-btn" id="go-to-top-btn" onclick="window.scrollTo(0, 0)">Go to Top</button>
+    <!-- Inline JSON data -->
+    
+    <script id="json-data" type="application/json">
+        <!-- JSON data goes here -->
+    </script>
+
+    <script>
+        function wrapInItalics(text) {
+            return text.replace(/"([^"]+)"/g, '<i style="font-weight:normal">"$1"</i>');
+        }
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        function showNotification() {
+            notification.style.display = 'block'; 
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        function populateGeneralInfo() {
+            generalInfoTable.innerHTML = `
+                <tr>
+                    <th colspan="2" style="text-align:center">Project Information</td>
+                </tr>
+                <tr>
+                    <th>Project</th>
+                    <td><input style="width:30%" type="text" id="Project" placeholder="Example Project" value=""></td>
+                </tr>
+                <tr>
+                    <th>Recorded by</th>
+                    <td><input style="width:30%" type="text" id="Recorded_by" placeholder="M. Mustermann" value=""></td>
+                </tr>
+                <tr>
+                    <th>Purpose of Recording</th>
+                    <td><textarea style="width:100%;height:10vh" type="text" placeholder="This recording was made to show the steps for..." id="Purpose"></textarea></td>
+                </tr>
+                <tr>
+                    <th colspan="2" style="text-align:center">Recording Session Information</td>
+                </tr>
+                <tr>
+                    <th>Recording Start</th>
+                    <td>${generalInfo.recording_start}</td>
+                </tr>
+                <tr>
+                    <th>Recording End</th>
+                    <td>${generalInfo.recording_finish}</td>
+                </tr>
+                <tr>
+                    <th>Duration</th>
+                    <td>${generalInfo.duration}</td>
+                </tr>
+                <tr>
+                    <th>Recorded Steps</th>
+                    <td>${generalInfo.recorded_steps}</td>
+                </tr>
+                <tr>
+                    <th>Missed Steps</th>
+                    <td style="color: ${generalInfo.missed_steps > 0 ? '#e1e125 !important' : 'green !important'}; font-weight: bold;">
+                        ${generalInfo.missed_steps}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Errors</th>
+                    <td style="color: ${generalInfo.errors > 0 ? 'red !important' : 'green !important'}; font-weight: bold;">
+                        ${generalInfo.errors}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Steps without Images</th>
+                    <td style="color: ${generalInfo.no_image > 0 ? 'red !important' : 'green !important'}; font-weight: bold;">
+                        ${generalInfo.no_image}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Operating System</th>
+                    <td>${generalInfo.os_edition} <i>(${generalInfo.operating_system})</i></td>
+                </tr>
+                <tr>
+                    <th>Operating System Description</th>
+                    <td>${generalInfo.os_description}</td>
+                </tr>
+                <tr>
+                    <th colspan="2" style="text-align:center">Original File Information</td>
+                </tr>
+                <tr>
+                    <th>File Name</th>
+                    <td>${generalInfo.file_name}</td>
+                </tr>
+                <tr>
+                    <th>Last Modified</th>
+                    <td>${generalInfo.last_modified}</td>
+                </tr>
+                <tr>
+                    <th>File Size (Bytes)</td>
+                    <td>${generalInfo.file_size} MB</td>
+                </tr>
+                <tr>
+                    <th>MD5</td>
+                    <td>${generalInfo.md5}</td>
+                </tr>
+                <tr>
+                    <th colspan="2" style="text-align:center">Conversion Information</td>
+                </tr>
+                <tr>
+                    <th>Converted By</td>
+                    <td>${generalInfo.user}</td>
+                </tr>
+                <tr>
+                    <th>Time</td>
+                    <td>${generalInfo.current_time}</td>
+                </tr>
+            `;
+        }
+
+        function populateSteps() {
+            let stepsHTML = '';
+            let stepNumber = 1;
+            const totalSteps = Object.keys(steps).length;
+            for (let stepKey in steps) {
+                const step = steps[stepKey];
+                const programTable = `
+                    <table class="info-table">
+                        <tr>
+                            <th style="width:25%">Program Name</th>
+                            <td>${step.full_details.file_description}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:25%">Version</th>
+                            <td>${step.full_details.file_version}</td>
+                        </tr>
+                    </table>
+                `;
+                const programTableFull = `
+                    <table class="info-table" style="table-layout:fixed">
+                        <tr>
+                            <th style="width:25%">Program Name</th>
+                            <td>${step.full_details.file_description}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:25%">Version</th>
+                            <td>${step.full_details.file_version}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:25%">Publisher</th>
+                            <td>${step.full_details.file_company}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:25%">Executable</th>
+                            <td>${step.full_details.file_name}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:25%">Command Line</th>
+                            <td>${step.full_details.commandline}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:25%">Process Identifier</th>
+                            <td>${step.full_details.pid}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:25%">Program Identifier</th>
+                            <td>${step.full_details.program_id}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:25%">File Identifier</th>
+                            <td>${step.full_details.file_id}</td>
+                        </tr>
+                    </table>
+                `;
+                const coordsFull = `
+                    <table class="info-table">
+                        <tr>
+                            <th style="width:25%">Cursor Coordinates (x,y)</th>
+                            <td>${step.full_details.cursor_coords}</td>
+                        </tr>
+                        <tr>
+                            <th style="width:25%">Screen Coordinates (x,y,w,h)</th>
+                            <td>${step.full_details.screen_coords}</td>
+                        </tr>
+                    </table>
+                `;
+                let uiFull = `
+                    <table class="info-table" style="table-layout:fixed">
+                        <thead>
+                            <tr>
+                                <th>BoundingRectangle</th>
+                                <th>ClassName</th>
+                                <th>ControlType</th>
+                                <th>FrameworkId</th>
+                                <th>Name</th>
+                                <th>LocalizedControlType</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${step.full_details.uia_stack.map(item => `
+                                <tr>
+                                    <td>${item.BoundingRectangle}</td>
+                                    <td>${item.ClassName}</td>
+                                    <td>${item.ControlType}</td>
+                                    <td>${item.FrameworkId}</td>
+                                    <td>${item.Name || '<i>N/A</i>'}</td>
+                                    <td>${item.LocalizedControlType}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                if (step.full_details.uia_stack.length == 0) {
+                    uiFull = '<p class="ui-elements"><i>No UI elements in this step</i></p>';
+                }
+
+                stepsHTML += `
+                    <div class="step">
+                        <h2>Step ${stepNumber} / ${totalSteps}</h2>
+                        <p><strong>Information:</strong></p>
+                        <table class="info-table">
+                            <tr>
+                                <th style="width:10%">Time</th>
+                                <td>${step.timestamp}</td>
+                            </tr>
+                            <tr>
+                                <th style="width:10%">Description</th>
+                                <td> ${wrapInItalics(step.title)}</td>
+                            </tr>
+                        </table>
+                        <p class="step-image" style="text-align: center;"> <img src="Screenshots/${step.image_name}" alt="Step Screenshot"></p>
+                        <p class="no-print" style="text-align: center; margin:5px"><a href="Screenshots/${step.image_name}" target="_blank" style="color: grey;font-weight:bold">View full-size image</a></p>
+                        <div class="detail-medium">
+                            <p><strong>Details:</strong></p>
+                            ${programTable}
+                        </div>
+                        <div class="detail-full" style="display:none">
+                            <p><strong>Details:</strong></p>
+                            ${programTableFull}
+                            <p><strong>Coordinates:</strong></p>
+                            ${coordsFull}
+                            <p><strong>UI Elements:</strong></p>
+                            ${uiFull}
+                        </div>
+                    </div>
+                `;
+                stepNumber++;
+            }
+
+            stepsContainer.innerHTML += stepsHTML;
+        }
+
+        function initializePage() {
+            populateGeneralInfo();
+            populateSteps();
+        }
+        
+        const jsonData = JSON.parse(document.getElementById('json-data').textContent);    
+        const generalInfoTable = document.getElementById('general-info-table');
+        const generalInfo = jsonData.general_information;
+        const stepsContainer = document.getElementById('steps-container');
+        const steps = jsonData.steps;
+        const selectElement = document.getElementById('program-option');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        const darkModeSwitch = document.getElementById('dark-mode-switch');
+        const body = document.body;
+        const header = document.querySelector('header');
+        const container = document.querySelector('.container');
+        const goToTopBtn = document.getElementById('go-to-top-btn');
+        const moon = document.querySelector('.moon');
+        const sun = document.querySelector('.sun');
+        const infoIcon = document.getElementById('info-icon');
+        const tooltip = document.getElementById('tooltip');
+        const videoBtn = document.getElementById('view-video-btn');
+        const printBtn = document.getElementById('print-btn');
+
+        darkModeSwitch.addEventListener('change', function() {
+            const inputFields = document.querySelectorAll('input, textarea');
+            const h2Elements = document.querySelectorAll('h2');
+            const infoTable = document.querySelectorAll('.info-table');
+            body.classList.toggle('dark-mode');
+            header.classList.toggle('dark-mode');
+            container.classList.toggle('dark-mode');
+            infoTable.forEach(table => table.classList.toggle('dark-mode'));
+            goToTopBtn.classList.toggle('dark-mode');
+            h2Elements.forEach(h2 => h2.classList.toggle('dark-mode'));
+            inputFields.forEach(input => input.classList.toggle('dark-mode'));
+            
+            if (body.classList.contains('dark-mode')) {
+                darkModeSwitch.setAttribute('aria-label', 'Switch to Light Mode'); 
+                moon.setAttribute('style', 'opacity:1')
+                sun.setAttribute('style', 'opacity:0')
+            } else {
+                darkModeSwitch.setAttribute('aria-label', 'Switch to Dark Mode');
+                sun.setAttribute('style', 'opacity:1')
+                moon.setAttribute('style', 'opacity:0')
+            }
+        });
+
+        infoIcon.addEventListener('mouseover', () => {
+            tooltip.style.visibility = 'visible'; 
+            const iconRect = infoIcon.getBoundingClientRect();
+            tooltip.style.top = `${iconRect.bottom + 10}px`; 
+            tooltip.style.left = `${iconRect.left + (iconRect.width / 2) - (tooltip.offsetWidth / 2)}px`; 
+        });
+
+        infoIcon.addEventListener('mouseout', () => {
+            tooltip.style.visibility = 'hidden'; 
+        });
+        
+        selectElement.addEventListener('change', function() {  
+            const detailMedium = document.querySelectorAll('.detail-medium');
+            const detailFull = document.querySelectorAll('.detail-full');
+            const selectedValue = selectElement.value;
+            detailMedium.forEach((element) => {
+                if (selectedValue === 'basic') {
+                    element.style.display = 'none'; 
+                } else if (selectedValue === 'medium') {
+                    element.style.display = 'block'; 
+                } else if (selectedValue === 'full') {
+                    element.style.display = 'none'; 
+                }
+            });
+            detailFull.forEach((element) => {
+                if (selectedValue === 'basic' || selectedValue === 'medium') {
+                    element.style.display = 'none'; 
+                } else if (selectedValue === 'full') {
+                    element.style.display = 'block'; 
+                }
+            });
+            notificationText.textContent = `${capitalizeFirstLetter(selectedValue)}`;
+            showNotification();
+        });
+
+        videoBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            const videoContainer = document.getElementById('video-container');
+            if (videoContainer.style.display === 'none' || videoContainer.style.display === '') {
+                videoContainer.style.display = 'block';
+                this.textContent = 'Hide Video';
+            } else {
+                videoContainer.style.display = 'none';
+                this.textContent = 'View Video';
+            }
+        });
+        
+        printBtn.addEventListener('click', function() {
+            const textarea = document.getElementById('textarea');
+            const goToTopBtn = document.getElementById('go-to-top-btn');
+            this.style.height = 'auto';
+            goToTopBtn.style.display = 'none'
+            window.print();
+        });
+    
+        window.addEventListener('scroll', function() {
+            const goToTopBtn = document.getElementById('go-to-top-btn');
+            if (window.scrollY > 200) {
+                goToTopBtn.style.display = 'block';
+            } else {
+                goToTopBtn.style.display = 'none';
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', initializePage);
+        
+    </script>    
+</body>
+</html>
