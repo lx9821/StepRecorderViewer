@@ -1,6 +1,6 @@
 # StepRecorderViewer
 
-StepConverter is a tool designed to convert recorded steps from an .mht file into a detailed HTML report. This tool extracts general information, steps, and screenshots from the recording and presents them in a user-friendly HTML format. It also supports dark mode and allows users to view a video of the recorded steps.
+StepRecorderViewer is a tool designed to convert recorded steps from an .mht file into a detailed HTML report. This tool extracts general information, steps, and screenshots from the recording and presents them in a user-friendly HTML format. It also supports dark mode and allows users to view a video of the recorded steps.
 
 Even though `psr.exe` will soon be discontinued by Microsoft, this project aims to help with the current output format `.mht` to produce a nicer output. Problems with the `.mht` files include lack of browser support and difficulty in extracting images.
 
