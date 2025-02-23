@@ -4,6 +4,11 @@ StepRecorderViewer is a tool designed to convert recorded steps from an .mht fil
 
 Even though `psr.exe` will soon be discontinued by Microsoft, this project aims to help with the current output format `.mht` to produce a nicer output. Problems with the `.mht` files include lack of browser support and difficulty in extracting images.
 
+
+![image](https://github.com/user-attachments/assets/80264ab0-17c9-49c4-a322-2c5f5bf4cf92)
+
+![image](https://github.com/user-attachments/assets/301575d5-02c8-4777-b27b-ff0f05573a2e)
+
 ## Key Features
 
 - 📋 **General Information Extraction**: Extracts and displays general information about the recording session, including recording start and end times, duration, recorded steps, missed steps, errors, and operating system details.
